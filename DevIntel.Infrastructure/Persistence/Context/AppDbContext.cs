@@ -14,7 +14,7 @@ namespace DevIntel.Infrastructure.Persistence.Context
           : base(options) { }
 
         public DbSet<User> Users => Set<User>();
-        public DbSet<IntelEntry> IntelEntries;
+        public DbSet<IntelEntry> IntelEntries => Set<IntelEntry>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

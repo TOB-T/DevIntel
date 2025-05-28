@@ -4,6 +4,7 @@ using DevIntel.Application.Interfaces;
 using DevIntel.Application.Responses;
 using DevIntel.Domain.Entities;
 using DevIntel.Infrastructure.Persistence.Context;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,21 +17,32 @@ namespace DevIntel.Infrastructure.Services
     public class IntelService : IIntelService
     {
         private readonly AppDbContext _context;
+        private readonly IImageService _imageService;
 
-        public IntelService(AppDbContext context)
+        public IntelService(AppDbContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Response<IntelDto>> CreateAsync(CreateIntelDto dto, Guid userId)
         {
+            string? imagePath = null;
+
+            if (dto.Image != null)
+            {
+                imagePath = await _imageService.SaveImageAsync(dto.Image);
+            }
+
+
             var entry = new IntelEntry
             {
                 Id = Guid.NewGuid(),
                 Title = dto.Title,
                 Description = dto.Description,
                 Tags = string.Join(',', dto.Tags),
-                ImagePath = dto.ImagePath,
+                ImagePath = imagePath,
+
                 CreatedById = userId,
                 CreatedAt = DateTime.UtcNow
             };
@@ -103,6 +115,20 @@ namespace DevIntel.Infrastructure.Services
 
             // 4. Wrap in Response<T> and return
             return new Response<IntelDto>(dto, "Intel entry retrieved successfully.", true);
+        }
+
+        public async Task<Response<IntelDto>> CreateFromFormAsync( string title,  string description, List<string> tags, IFormFile? image,Guid userId)
+        {
+            // Build the DTO here once, so controller stays clean
+            var dto = new CreateIntelDto
+            {
+                Title = title,
+                Description = description,
+                Tags = tags,
+                Image = image
+            };
+
+            return await CreateAsync(dto, userId);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,9 @@ namespace DevIntel.Application.DTO
         public string Description { get; set; } = string.Empty;
         public List<string> Tags { get; set; } = new();
         // For image upload, you might handle as a Base64 string or separate file upload endpoint
-        public string? ImagePath { get; set; }
+         public string? ImagePath { get; set; }
+
+        // Image file from form-data
+        public IFormFile? Image { get; set; }
     }
 }

@@ -31,6 +31,9 @@ namespace DevIntel.Infrastructure.Extensions
             // Register your JWT token generator
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<IIntelService, IntelService>();
+            services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IImageService, ImageService>();
+
 
             services.AddAuthorization(options =>
             {

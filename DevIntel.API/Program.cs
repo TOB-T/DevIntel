@@ -1,3 +1,4 @@
+using DevIntel.API.Swagger;
 using DevIntel.Application.DTO;
 using DevIntel.Application.Validators;
 using DevIntel.Infrastructure.Configurations;
@@ -5,6 +6,7 @@ using DevIntel.Infrastructure.Extensions;
 using DevIntel.Infrastructure.Persistence.Seeders;
 using FluentValidation;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 
@@ -15,7 +17,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // 1) Still map IFormFile ? file input
+    c.MapType<IFormFile>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+
+    // 2) Add your custom operation filter
+    c.OperationFilter<FileUploadOperationFilter>();
+
+    // (any other config, e.g. SwaggerDoc)
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DevIntel API", Version = "v1" });
+});
 
 
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -62,6 +78,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles(); // Serve files from wwwroot (e.g. /uploads/…)
 
 app.UseAuthentication();
 
